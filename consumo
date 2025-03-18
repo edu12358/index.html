@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Consumo e Custo Elétrico</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+            margin: 0;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .dark-mode {
+            background-color: #333;
+            color: white;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #result {
+            margin-top: 20px;
+        }
+        .theme-toggle {
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <button class="theme-toggle" onclick="toggleTheme()">Alternar Tema</button>
+
+    <div class="container">
+        <h1>Calculadora de Consumo e Custo Elétrico</h1>
+        <p>Calcule o consumo mensal de energia e o custo em reais de um aparelho.</p>
+
+        <label for="potencia">Potência do aparelho (em watts):</label>
+        <input type="number" id="potencia" placeholder="Digite a potência em watts">
+
+        <label for="horas">Horas de uso diário:</label>
+        <input type="number" id="horas" placeholder="Digite o número de horas por dia">
+
+        <label for="dias">Número de dias de uso por mês:</label>
+        <input type="number" id="dias" placeholder="Digite o número de dias por mês">
+
+        <label for="tarifa">Tarifa de energia (R$/kWh):</label>
+        <input type="number" id="tarifa" value="0.80" readonly>
+
+        <button onclick="calcularConsumoECusto()">Calcular Consumo e Custo</button>
+
+        <h2 id="resultado"></h2>
+        <canvas id="graficoConsumo" width="400" height="200"></canvas>
+    </div>
+
+    <script>
+        let chart;
+
+        function toggleTheme() {
+            document.body.classList.toggle("dark-mode");
+        }
+
+        function calcularConsumoECusto() {
+            var potencia = document.getElementById('potencia').value;
+            var horas = document.getElementById('horas').value;
+            var dias = document.getElementById('dias').value;
+            var tarifa = document.getElementById('tarifa').value;
+
+            if (potencia && horas && dias && tarifa) {
+                // Calcular o consumo em kWh
+                var consumoMensal = (potencia * horas * dias) / 1000; // Consumo em kWh
+                var custoMensal = consumoMensal * tarifa; // Custo em reais
+
+                // Exibir os resultados
+                document.getElementById('resultado').innerHTML = 
+                    'Consumo mensal: ' + consumoMensal.toFixed(2) + ' kWh<br>' +
+                    'Custo mensal: R$ ' + custoMensal.toFixed(2);
+
+                // Atualizar gráfico
+                atualizarGrafico(consumoMensal, custoMensal);
+            } else {
+                document.getElementById('resultado').innerHTML = 'Por favor, preencha todos os campos.';
+            }
+        }
+
+        function atualizarGrafico(consumo, custo) {
+            const ctx = document.getElementById('graficoConsumo').getContext('2d');
+
+            if (chart) {
+                chart.destroy(); // Destruir gráfico anterior
+            }
+
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Consumo (kWh)', 'Custo (R$)'],
+                    datasets: [{
+                        label: 'Consumo e Custo',
+                        data: [consumo, custo],
+                        backgroundColor: ['#ffcc00', '#28a745'],
+                        borderColor: ['#ff9900', '#218838'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>
